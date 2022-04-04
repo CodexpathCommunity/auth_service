@@ -10,6 +10,7 @@ import argon2 from "argon2";
 import { nanoid } from "nanoid";
 import log from "../utils/logger";
 
+//hash password before saving
 @pre<User>("save", async function () {
   if (!this.isModified("password")) return;
 
@@ -19,10 +20,13 @@ import log from "../utils/logger";
 
   return;
 })
+//mondel options
 @modelOptions({
   schemaOptions: { timestamps: true },
   options: { allowMixed: Severity.ALLOW },
 })
+
+//user model
 export class User {
   @prop({ lowercase: true, required: true, unique: true })
   email: string;
