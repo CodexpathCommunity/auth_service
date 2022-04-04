@@ -4,6 +4,7 @@ import {
   prop,
   Severity,
   pre,
+  DocumentType,
 } from "@typegoose/typegoose";
 import argon2 from "argon2";
 import { nanoid } from "nanoid";
@@ -44,8 +45,9 @@ export class User {
   @prop({ default: false })
   verified: string;
 
-  async validatePassword() {
+  async validatePassword(this: DocumentType<User>, candidatePassword: string) {
     try {
+      return await argon2.verify(this.password, candidatePassword);
     } catch (error) {
       log.error(error, "Error validating password");
       return false;
