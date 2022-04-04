@@ -7,7 +7,7 @@ import router from "./routes";
 
 const app = express();
 
-app.use(router);
+app.use("/api/v1", router);
 
 const port = config.get("port");
 
