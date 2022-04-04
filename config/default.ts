@@ -1,5 +1,5 @@
 export default {
-  port: 3000,
+  port: 5000,
   dbUrl: "mongodb://localhost:27017/auth_service",
   logLevel: "info",
 };
