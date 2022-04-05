@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { CreateUserInput } from "../shema/user.schema";
-import { createUser } from "../service/user.service";
+import { CreateUserInput, VerifyUsernput } from "../shema/user.schema";
+import { createUser, findUserById } from "../service/user.service";
 import sendEmail from "../utils/mailer";
+import log from "../utils/logger";
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput>,
@@ -12,8 +13,8 @@ export async function createUserHandler(
   try {
     const user = await createUser(body);
     await sendEmail({
-      from: "codexpath3@gmail.com",
       to: user.email,
+      from: "codexpath3@gmail.com",
       subject: "verify your email to register",
       text: `verification code is ${user.verificationCode}. Id: ${user._id}`,
     });
@@ -24,4 +25,33 @@ export async function createUserHandler(
     }
     return res.status(500).send(e.message);
   }
+}
+
+export async function verifyUserHandler(
+  req: Request<VerifyUsernput>,
+  res: Response
+) {
+  const id = req.params.id;
+  const verificationCode = req.params.verificationCode;
+
+  const user = await findUserById(id);
+
+  if (!user) {
+    return res.send("user not found");
+  }
+
+  if (user.verified) {
+    return res.send("user already verified");
+  }
+
+  if (user.verificationCode === verificationCode) {
+    user.verified = true;
+    await user.save();
+    return res.send("user verified");
+  }
+
+  if (user.verificationCode !== verificationCode) {
+    return res.send("verification code is incorrect");
+  }
+  return res.send("user not verified");
 }

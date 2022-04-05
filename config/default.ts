@@ -7,6 +7,6 @@ export default {
     pass: "2ejHK7CnUJS8E5aXFP",
     host: "imap.ethereal.email",
     port: 995,
-    secure: true,
+    secure: false,
   },
 };
