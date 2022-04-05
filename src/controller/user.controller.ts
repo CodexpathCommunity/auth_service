@@ -1,8 +1,17 @@
 import { Request, Response } from "express";
-import { CreateUserInput, VerifyUsernput } from "../shema/user.schema";
-import { createUser, findUserById } from "../service/user.service";
+import {
+  CreateUserInput,
+  ForgotPasswordInput,
+  VerifyUsernput,
+} from "../shema/user.schema";
+import {
+  createUser,
+  findUserByEmail,
+  findUserById,
+} from "../service/user.service";
 import sendEmail from "../utils/mailer";
 import log from "../utils/logger";
+import { nanoid } from "nanoid";
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput>,
@@ -54,4 +63,39 @@ export async function verifyUserHandler(
     return res.send("verification code is incorrect");
   }
   return res.send("user not verified");
+}
+
+export async function forgotPasswordHandler(
+  req: Request<ForgotPasswordInput>,
+  res: Response
+) {
+  const message =
+    "if user is registered, a verification code will be sent to the user's email";
+  const { email } = req.body;
+
+  const user = await findUserByEmail(email);
+
+  if (!user) {
+    log.debug(`user with email ${email} not found`);
+    return res.send(message);
+  }
+  if (!user.verified) {
+    log.debug(`user with email ${email} not verified`);
+    return res.send(message);
+  }
+
+  const passwordResetCode = nanoid();
+
+  user.passwordResetCode = passwordResetCode;
+  await user.save();
+
+  await sendEmail({
+    to: user.email,
+    from: "test@gmail.com",
+    subject: "reset your password",
+    text: `reset code is ${passwordResetCode}. Id: ${user._id}`,
+  });
+
+  return res.send("reset code sent to user's email");
+  log.debug(`reset code sent to ${email}`);
 }

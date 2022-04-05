@@ -5,6 +5,7 @@ import {
   Severity,
   pre,
   DocumentType,
+  index,
 } from "@typegoose/typegoose";
 import argon2 from "argon2";
 import { nanoid } from "nanoid";
@@ -20,6 +21,8 @@ import log from "../utils/logger";
 
   return;
 })
+//index
+@index({ email: 1 })
 //mondel options
 @modelOptions({
   schemaOptions: { timestamps: true },
