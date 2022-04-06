@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   CreateUserInput,
   ForgotPasswordInput,
+  ResetPasswordInput,
   VerifyUsernput,
 } from "../shema/user.schema";
 import {
@@ -89,13 +90,38 @@ export async function forgotPasswordHandler(
   user.passwordResetCode = passwordResetCode;
   await user.save();
 
-  await sendEmail({
-    to: user.email,
-    from: "test@gmail.com",
-    subject: "reset your password",
-    text: `reset code is ${passwordResetCode}. Id: ${user._id}`,
-  });
+  // await sendEmail({
+  //   to: user.email,
+  //   from: "test@gmail.com",
+  //   subject: "reset your password",
+  //   text: `reset code is ${passwordResetCode}. Id: ${user._id}`,
+  // });
 
   log.debug(`reset code sent to ${email}`);
   return res.send("reset code sent to user's email");
+}
+
+export async function resetPasswordHandler(
+  req: Request<ResetPasswordInput["params"], {}, ResetPasswordInput["body"]>,
+  res: Response
+) {
+  const { id, passwordResetCode } = req.params;
+
+  const { password } = req.body;
+
+  const user = await findUserById(id);
+
+  if (
+    !user ||
+    !user.passwordResetCode ||
+    user.passwordResetCode !== passwordResetCode
+  ) {
+    return res.status(400).send("could not reset password");
+  }
+
+  user.passwordResetCode = null;
+  user.password = password;
+  await user.save();
+
+  return res.send("password reset successfully");
 }

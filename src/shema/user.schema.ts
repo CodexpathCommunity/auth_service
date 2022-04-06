@@ -38,6 +38,25 @@ export const forgortPasswordSchema = object({
   }),
 });
 
+export const resetPasswordSchema = object({
+  body: object({
+    password: string({
+      required_error: "password is required",
+    }).min(6, "password is too short - min 6 characters"),
+    passwordConfirmation: string({
+      required_error: "password confirmation is required",
+    }),
+  }).refine((data) => data.password === data.passwordConfirmation, {
+    message: "passwords do not match",
+    path: ["passwordConfirmation"],
+  }),
+  params: object({
+    id: string(),
+    passwordResetCode: string(),
+  }),
+});
+
 export type CreateUserInput = TypeOf<typeof createUserSchema>["body"];
 export type VerifyUsernput = TypeOf<typeof verifyUserSchema>["params"];
 export type ForgotPasswordInput = TypeOf<typeof forgortPasswordSchema>["body"];
+export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>;
