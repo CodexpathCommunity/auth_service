@@ -96,6 +96,6 @@ export async function forgotPasswordHandler(
     text: `reset code is ${passwordResetCode}. Id: ${user._id}`,
   });
 
-  return res.send("reset code sent to user's email");
   log.debug(`reset code sent to ${email}`);
+  return res.send("reset code sent to user's email");
 }
