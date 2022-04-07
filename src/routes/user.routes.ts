@@ -25,16 +25,20 @@ router.post(
   verifyUserHandler
 );
 
+//forgot password
 router.post(
   "/user/forgot-password",
   validateResource(forgortPasswordSchema),
   forgotPasswordHandler
 );
 
+//reset password
 router.post(
   "/user/reset-password/:id/:passwordResetCode",
   validateResource(resetPasswordSchema),
   resetPasswordHandler
 );
+
+//get current user route
 
 export default router;
