@@ -2,10 +2,12 @@ import express from "express";
 import {
   createUserHandler,
   forgotPasswordHandler,
+  getCurrentUser,
   resetPasswordHandler,
   verifyUserHandler,
 } from "../controller/user.controller";
 import validateResource from "../middlewares/validateResource";
+import requireUser from "../middlewares/requireUser";
 import {
   createUserSchema,
   forgortPasswordSchema,
@@ -40,5 +42,6 @@ router.post(
 );
 
 //get current user route
+router.get("/user/me", requireUser, getCurrentUser);
 
 export default router;
